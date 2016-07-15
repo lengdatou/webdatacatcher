@@ -11,12 +11,13 @@ import json
 from bs4 import BeautifulSoup
 from checkgoods import printlist
 from string import strip
+import xlrd,xlwt
 
 
 class MyDataCatcher():
     def __init__(self):
-        self.__urldata=json.load(file('urldata.json'),'utf-8')
-        self.__url1=self.__urldata.get('dataurl').get('url1')
+        self.__urldata=json.load(file('config\\urldata.json'),'utf-8')
+        self.__url1=self.__urldata.get('dataurl').get('url4')
         
     def getcontent(self,sendurl=''):
         return urllib2.urlopen(self.__url1).read()
@@ -49,13 +50,13 @@ class MyDataCatcher():
         urllib2.urlopen(request)  
  
     def beautifulsouphtml(self,htmlcontent=''):   
-        soup = BeautifulSoup(file('data.html')) 
+        soup = BeautifulSoup(self.getcontent()) 
         names=list()
-        data=dict()
+        data=list()
         for tt in soup.body.children:
             if tt.name=='div' and tt.thead!=None:
                 for mm in tt.thead.tr:
-                    if mm.string!=None:
+                    if strip(str(mm.string)) not in ['','\n','None']:
                         names.append(strip(str(mm.string)))
                 for nn in tt.tbody.children:
                     try:
@@ -63,13 +64,23 @@ class MyDataCatcher():
                         for qq in nn:
                             if strip(str(qq.string)) not in ['','\n','None']:
                                 templist.append(strip(str(qq.string)))
-                        data[templist[0]]=templist[1:]
+                        data.append(templist)
                     except:
                         continue
         printlist(names)
         print '\r'
         for i in data:
-            print i,
-            printlist(data[i])
+            printlist(i)
             print '\r'
+        return names,data
+            
+    def datarecord(self):
+        names,data=self.beautifulsouphtml()
+        xls=xlwt.Workbook()
+        sheet1=xls.add_sheet('001')
+        for i in range(len(data[0])):
+            for j in range(len(data)):
+                sheet1.write(j,i,float(data[j][i]))
+        xls.save('config\\datarecord.xls') 
+        
                 

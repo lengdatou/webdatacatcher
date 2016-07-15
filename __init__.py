@@ -9,5 +9,5 @@ import urlopener
 
 if __name__ == "__main__":
     mainobj=urlopener.MyDataCatcher()
-    #mainobj.evaluatelogin()
-    mainobj.beautifulsouphtml()
+    mainobj.evaluatelogin()
+    mainobj.datarecord()
